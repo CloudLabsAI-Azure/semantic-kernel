@@ -70,7 +70,7 @@ async def main():
     settings: OpenAIChatPromptExecutionSettings = kernel.get_prompt_execution_settings_from_service_id(
         service_id=service_id
     )
-    settings.function_call_behavior = FunctionCallBehavior.EnableFunctions(
+    settings.function_choice_behavior = FunctionChoiceBehavior.Auto(
         auto_invoke=True, filters={"included_plugins": ["nllama3"]}
     )
 
@@ -88,7 +88,7 @@ async def main():
     settings: OpenAIChatPromptExecutionSettings = kernel.get_prompt_execution_settings_from_service_id(
         service_id=service_id
     )
-    settings.function_call_behavior = FunctionCallBehavior.EnableFunctions(
+    settings.function_choice_behavior = FunctionChoiceBehavior.Auto(
         auto_invoke=True, filters={"included_plugins": ["nllama3"]}
     )
 
@@ -111,7 +111,7 @@ async def main():
     settings: OpenAIChatPromptExecutionSettings = kernel.get_prompt_execution_settings_from_service_id(
         service_id=service_id
     )
-    settings.function_call_behavior = FunctionCallBehavior.EnableFunctions(
+    settings.function_choice_behavior = FunctionChoiceBehavior.Auto(
         auto_invoke=False, filters={"included_plugins": ["nllama3"]}
     )
     chat_history.add_user_message(
@@ -131,14 +131,14 @@ async def main():
 
         chat_history.add_message(result)
         for item in result.items:
-            await chat._process_function_call(
+            await kernel.invoke_function_call(
                 function_call=item,
-                kernel=kernel,
+               # kernel=kernel,
                 chat_history=chat_history,
                 arguments=KernelArguments(),
                 function_call_count=1,
                 request_index=0,
-                function_call_behavior=settings.function_call_behavior,
+               # function_call_behavior=settings.function_call_behavior,
             )
 
 
