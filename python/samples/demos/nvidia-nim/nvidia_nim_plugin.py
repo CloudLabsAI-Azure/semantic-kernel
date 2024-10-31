@@ -133,12 +133,10 @@ async def main():
         for item in result.items:
             await kernel.invoke_function_call(
                 function_call=item,
-               # kernel=kernel,
                 chat_history=chat_history,
                 arguments=KernelArguments(),
                 function_call_count=1,
                 request_index=0,
-               # function_call_behavior=settings.function_call_behavior,
             )
 
 
