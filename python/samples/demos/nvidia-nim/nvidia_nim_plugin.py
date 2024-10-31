@@ -3,7 +3,7 @@
 import asyncio
 from typing import Annotated
 
-from semantic_kernel.connectors.ai.function_call_behavior import FunctionCallBehavior
+from semantic_kernel.connectors.ai.function_choice_behavior import FunctionChoiceBehavior
 from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion, OpenAIChatCompletion
 from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.open_ai_prompt_execution_settings import (
     OpenAIChatPromptExecutionSettings,
@@ -28,16 +28,13 @@ class NLlama3Plugin:
     def get_nllama3_opinion(self, question: Annotated[str, "The input question"]) -> Annotated[str, "The output is a string"]:
        
         prompt = question.replace("nllama3", "you")
-        # Make sure model name match the model of NIM you deploy
-        headers = {
-            'azureml-model-deployment': '<azureml_deployment_name>',
-        }
-        client = OpenAI(base_url=nim_url, api_key="<nim_api_key>",default_headers = headers)
+        
+        client = OpenAI(base_url=nim_url, api_key="<nim_api_key>")
         messages = [
             {"content": prompt, "role": "user"}
         ]        
         response = client.chat.completions.create(
-            model="meta/llama-3.1-8b-instruct",
+            model="meta/llama3-8b-instruct",
             messages=messages,
             max_tokens=64,
             stream=False
@@ -73,7 +70,7 @@ async def main():
     settings: OpenAIChatPromptExecutionSettings = kernel.get_prompt_execution_settings_from_service_id(
         service_id=service_id
     )
-    settings.function_call_behavior = FunctionCallBehavior.EnableFunctions(
+    settings.function_choice_behavior = FunctionChoiceBehavior.Auto(
         auto_invoke=True, filters={"included_plugins": ["nllama3"]}
     )
 
@@ -91,7 +88,7 @@ async def main():
     settings: OpenAIChatPromptExecutionSettings = kernel.get_prompt_execution_settings_from_service_id(
         service_id=service_id
     )
-    settings.function_call_behavior = FunctionCallBehavior.EnableFunctions(
+    settings.function_choice_behavior = FunctionChoiceBehavior.Auto(
         auto_invoke=True, filters={"included_plugins": ["nllama3"]}
     )
 
@@ -114,7 +111,7 @@ async def main():
     settings: OpenAIChatPromptExecutionSettings = kernel.get_prompt_execution_settings_from_service_id(
         service_id=service_id
     )
-    settings.function_call_behavior = FunctionCallBehavior.EnableFunctions(
+    settings.function_choice_behavior = FunctionChoiceBehavior.Auto(
         auto_invoke=False, filters={"included_plugins": ["nllama3"]}
     )
     chat_history.add_user_message(
@@ -134,14 +131,12 @@ async def main():
 
         chat_history.add_message(result)
         for item in result.items:
-            await chat._process_function_call(
+            await kernel.invoke_function_call(
                 function_call=item,
-                kernel=kernel,
                 chat_history=chat_history,
                 arguments=KernelArguments(),
                 function_call_count=1,
                 request_index=0,
-                function_call_behavior=settings.function_call_behavior,
             )
 
 
