@@ -28,16 +28,13 @@ class NLlama3Plugin:
     def get_nllama3_opinion(self, question: Annotated[str, "The input question"]) -> Annotated[str, "The output is a string"]:
        
         prompt = question.replace("nllama3", "you")
-        # Make sure model name match the model of NIM you deploy
-        headers = {
-            'azureml-model-deployment': '<azureml_deployment_name>',
-        }
-        client = OpenAI(base_url=nim_url, api_key="<nim_api_key>",default_headers = headers)
+        
+        client = OpenAI(base_url=nim_url, api_key="<nim_api_key>")
         messages = [
             {"content": prompt, "role": "user"}
         ]        
         response = client.chat.completions.create(
-            model="meta/llama-3.1-8b-instruct",
+            model="meta/llama3-8b-instruct",
             messages=messages,
             max_tokens=64,
             stream=False
